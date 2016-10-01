@@ -26,6 +26,9 @@ public class Game extends ApplicationAdapter {
 	public Game(){
 
 	}
+	public static void out(String s){
+		System.out.println(s);
+	}
 	public static float HEIGHT=700;
 	public static float WIDTH=1350;
 	private static float strWidth(String s){
