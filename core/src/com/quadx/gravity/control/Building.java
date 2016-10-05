@@ -2,7 +2,6 @@ package com.quadx.gravity.control;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
-import com.quadx.gravity.Game;
 
 import java.util.Random;
 
@@ -73,14 +72,11 @@ public class Building {
     public void update(float dt){
         if(t==Type.Spawn){
             dtSpawn+=dt;
-            if(dtSpawn>2){
+            if(dtSpawn>1){
                 if(owner.food>=3*Unit.cost) {
                     if (owner.getPop() < owner.getPopMax()) {
-                        Unit u = new Unit(owner, Game.WIDTH/2, Game.HEIGHT/2);
-                        Resource.Type r= Resource.Type.Food;
-                        if(rn.nextBoolean())
-                            r= Resource.Type.Wood;
-                        u.gather(r);
+                        Unit u = new Unit(owner, this.pos.x,this.pos.x);
+                        u.changeState(Unit.State.Gather,Resource.getRandomResource());
                         owner.unitList.add(u);
                         dtSpawn = 0;
                     }

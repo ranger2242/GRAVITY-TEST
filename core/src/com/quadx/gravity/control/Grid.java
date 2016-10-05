@@ -27,7 +27,7 @@ public class Grid {
             trees1.add(new Resource(type,rn.nextInt((int) Game.WIDTH),rn.nextInt((int) Game.HEIGHT)));
         }
         ArrayList<Resource> trees2= new ArrayList<>();
-        for(int i=0;i<2000;i++){
+        for(int i=0;i<1000;i++){
             int index= rn.nextInt(trees1.size());
             Vector2 pos = trees1.get(index).getPosition();
             double x=pos.x+ rn.nextGaussian()*rn.nextInt(100);
@@ -36,12 +36,13 @@ public class Grid {
         }
         resources.addAll(trees1);
         resources.addAll(trees2);
+        /*
         for(int i=resources.size()-1;i>=0;i--){
             Vector2 pos= resources.get(i).getPosition();
             if(pos.x>Game.WIDTH || pos.x <0 ||pos.y>Game.HEIGHT || pos.y <0){
                 resources.remove(i);
             }
-        }
+        }*/
     }
     public void clearDead(ArrayList<Unit> a){
 

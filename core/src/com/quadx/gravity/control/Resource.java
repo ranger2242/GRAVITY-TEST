@@ -10,7 +10,7 @@ import java.util.Random;
  * Created by Chris Cavazos on 9/29/2016.
  */
 public class Resource {
-    Random rn= new Random();
+    static Random rn= new Random();
     private Type type= null;
     private Vector2 pos=null;
     private Color c=Color.WHITE;
@@ -38,20 +38,38 @@ public class Resource {
     public Color getColor() {
         return c;
     }
+    public static Type getRandomResource(){
+        if(rn.nextBoolean()){
+            return Type.Food;
+        }else{
+            return Type.Wood;
+        }
+    }
+    public static Type getCalcResource(Player p){
+        if(p.wood<p.food){
+            return Type.Wood;
+        }else{
+            return Type.Food;
+        }
+    }
+    boolean isColliding(Unit p){
+        return Collision.circlular(getHitBox(), p.getHitBox());
+    }
+
     void setAttributes(){
         switch (type){
             case Food: {
-                c=new Color(0f,1f,0f,1);
+                c=new Color(0f,.4f,0f,1);
                 radius=2;
-                dt=1;
-                value=rn.nextInt(1)+8;
+                dt=.05f;
+                value=10;
                 break;
             }
             case Wood: {
-                c=Color.BROWN;
+                c=new Color(.2f,.2f,0,1);
                 radius=4;
-                dt=2;
-                value=rn.nextInt(7)+2;
+                dt=.05f;
+                value=8;
                 break;
             }
         }

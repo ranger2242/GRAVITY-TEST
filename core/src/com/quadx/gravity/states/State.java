@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector3;
  */
 @SuppressWarnings({"ALL", "EmptyMethod"})
 abstract class State {
-    OrthographicCamera cam;
+    static OrthographicCamera cam;
     GameStateManager gsm;
 
     State(GameStateManager gsm){

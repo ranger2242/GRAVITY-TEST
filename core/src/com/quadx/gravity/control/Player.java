@@ -2,7 +2,6 @@ package com.quadx.gravity.control;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
-import com.quadx.gravity.EMath;
 import com.quadx.gravity.Game;
 
 import java.util.ArrayList;
@@ -14,24 +13,30 @@ import java.util.Random;
 public class Player {
     public ArrayList<Unit> unitList = new ArrayList<>();
     public ArrayList<Building> buildingList = new ArrayList<>();
+    ArrayList<Integer> planters=new ArrayList<>();
     int wood=0;
     int population=0;
     int popmax=25;
     int houses=0;
     int food=0;
+    int planter=-1;
+    float dtPlant=0;
     Random rn = new Random();
     public void initUnits(){
         int n=25;
-        for(int i=0;i<n;i++)
-        unitList.add(new Unit(this, Game.WIDTH/5,(Game.HEIGHT-30)-(i*10)));
+        for(int i=0;i<5;i++) {
+            for (int j = 0; j < 5; j++) {
+                unitList.add(new Unit(this, (Game.WIDTH/2)+(i*20)-(50),(Game.HEIGHT/2)+(j*20)-(50)));
+            }
+        }
 
         for(Unit u:unitList){
+            Resource.Type r=Resource.Type.Wood;
             if(rn.nextBoolean())
-            u.gather(Resource.Type.Wood);
-            else
-                u.gather(Resource.Type.Food);
+                r=Resource.Type.Food;
+            u.changeState(Unit.State.Gather,r);
         }
-        buildingList.add(new Building(this, Building.Type.Spawn,new Vector2(Game.WIDTH/4,Game.HEIGHT/2)));
+        buildingList.add(new Building(this, Building.Type.Spawn,new Vector2(Game.WIDTH/2,Game.HEIGHT/2)));
     }
     void updateUnits(){
         for(int i=unitList.size()-1;i>=0;i--){
@@ -42,6 +47,7 @@ public class Player {
         for(Unit u:unitList){
             u.move();
         }
+        /*
         for(int i=0;i<unitList.size();i++){
             if(i+1<unitList.size()){
                 if(EMath.pathag(unitList.get(i+1).getPosition().x-unitList.get(i).getPosition().x,unitList.get(i+1).getPosition().y-unitList.get(i).getPosition().y)>15){
@@ -55,7 +61,7 @@ public class Player {
                     unitList.get(i).consume();
                 }
             }
-        }
+        }*/
         popmax=25+(houses*5);
         population=unitList.size();
     }
@@ -67,11 +73,36 @@ public class Player {
         }
     }
     public void update(){
+        float dt=Gdx.graphics.getDeltaTime();
+        dtPlant+=dt;
+        if(dtPlant>5f){
+                Resource.Type r = Resource.Type.Food;
+                if (wood/2 < food) {
+                    r = Resource.Type.Wood;
+                }
+                for (int i = 0; i < planters.size(); i++) {
+                    try {
+                        unitList.get(planters.get(i)).changeState(Unit.State.Gather, Resource.getCalcResource(this));
+                    } catch (IndexOutOfBoundsException e) {
+                    }
+                }
+                double per = Math.floor(1 + (population / 20));
+                planters.clear();
+                for (int i = 0; i < per; i++) {
+                    int index = rn.nextInt(unitList.size());
+                    if(rn.nextBoolean()||rn.nextBoolean()) {
+                        planters.add(index);
+                        unitList.get(index).changeState(Unit.State.Plant, r);
+                    }
+                }
+            dtPlant=0;
+        }
+
         updateUnits();
         buildHouse();
         houses=0;
         for(Building b:buildingList){
-            b.update(Gdx.graphics.getDeltaTime());
+            b.update(dt);
 
             if(b.getType()==Building.Type.House){
                houses++;
