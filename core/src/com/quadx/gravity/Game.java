@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.quadx.gravity.command.Command;
 import com.quadx.gravity.states.GameStateManager;
 import com.quadx.gravity.states.MainMenuState;
@@ -50,10 +51,10 @@ public class Game extends ApplicationAdapter {
 		BitmapFont temp=new BitmapFont();
 
 		try {
-		//	FreeTypeFontGenerator generator= new FreeTypeFontGenerator(Gdx.files.internal("fonts\\prstart.ttf"));
-		//	FreeTypeFontGenerator.FreeTypeFontParameter parameter= new FreeTypeFontGenerator.FreeTypeFontParameter();
-		//	parameter.size = x;
-		//	temp = generator.generateFont(parameter);
+			FreeTypeFontGenerator generator= new FreeTypeFontGenerator(Gdx.files.internal("fonts\\prstart.ttf"));
+			FreeTypeFontGenerator.FreeTypeFontParameter parameter= new FreeTypeFontGenerator.FreeTypeFontParameter();
+			parameter.size = x;
+			temp = generator.generateFont(parameter);
 			//console("Font Generated");
 		}
 		catch (Exception e){
@@ -70,8 +71,8 @@ public class Game extends ApplicationAdapter {
 		commandList.add(new com.quadx.gravity.command.LeftComm());
 		commandList.add(new com.quadx.gravity.command.RightComm());
 		commandList.add(new com.quadx.gravity.command.ConfirmComm());
-		commandList.add(new com.quadx.gravity.command.BackComm());
-		fonts[0]=createFont(8);
+		//commandList.add(new com.quadx.gravity.command.BackComm());
+		fonts[0]=createFont(6);
 		fonts[1]=createFont(10);
 		fonts[2]=createFont(12);
 		fonts[3]=createFont(14);

@@ -151,7 +151,7 @@ public class Unit {
             }
             if (state == State.Plant) {
                 float f = Math.abs(EMath.pathag(pos.x, destination.x, pos.y, destination.y));
-                mr(targetRessource);
+                makeResource(targetRessource);
 
             }
             if (state != State.Rest) {
@@ -200,7 +200,7 @@ public class Unit {
         }
     }
 
-    void mr(Resource.Type type) {
+    void makeResource(Resource.Type type) {
         Resource r = new Resource(type, farmPlot.get(plotCounter).x, farmPlot.get(plotCounter).y);
         grid.resources.add(r);
         owner.addResource(Wood, -1);

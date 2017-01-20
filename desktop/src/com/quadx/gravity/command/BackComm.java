@@ -5,7 +5,7 @@ import com.badlogic.gdx.Input;
 /**
  * Created by Chris Cavazos on 8/12/2016.
  */
-public class BackComm extends Command {
+public class BackComm extends com.quadx.gravity.command.Command {
     public BackComm(){
         name="Back";
         keyboard= Input.Keys.TAB;

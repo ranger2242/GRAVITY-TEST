@@ -3,7 +3,6 @@ package com.quadx.gravity.states;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.quadx.gravity.command.Command;
 import com.quadx.gravity.Game;
 
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import static com.quadx.gravity.Game.centerString;
  */
 @SuppressWarnings("DefaultFileTemplate")
 public class MainMenuState extends State{
-    private final ArrayList<String> options=new ArrayList<>();
+    private static final ArrayList<String> options=new ArrayList<>();
     private static int selector=0;
     private int titlePosY=0;
     private int optionsPosY =0;
@@ -32,7 +31,7 @@ public class MainMenuState extends State{
 
     @Override
     protected void handleInput() {
-        for(Command c:Game.commandList){
+        for(com.quadx.gravity.command.Command c:Game.commandList){
             c.execute();
         }
     }
@@ -44,21 +43,22 @@ public class MainMenuState extends State{
         options.add("Soccer");
         options.add("Gravity");
         options.add("RoachAI");
+        options.add("Vector Test");
         options.add("Exit");
     }
 
     public static void incrementSelector(){
         selector--;
-        if(selector<0)selector=4;
+        if(selector<0)selector=options.size();
     }
     public static void decrementSelector() {
         selector++;
-        if(selector>4)selector=0;
+        if(selector>options.size())selector=0;
     }
     public static void selectOption(){
         switch (selector){
             case(0):{
-                g.push(new ControlGameState(g));
+                g.push(new HeightMapState(g));
                 break;
             }
             case(1):{
@@ -79,6 +79,10 @@ public class MainMenuState extends State{
                 g.push(new GameState(g));
                 break;
             }case(6):{
+                g.push(new VectorTestState(g));
+                break;
+            }
+            case(7):{
                 System.exit(0);
                 break;
             }
