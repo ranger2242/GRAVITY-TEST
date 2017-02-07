@@ -200,26 +200,6 @@ public class HeightMapState extends State {
     public void dispose() {
 
     }
-    void averageMap() {
-        for (int i = 0; i < res; i++) {
-            for (int j = 0; j < res; j++) {
-                int count = 0;
-                float tot = 0;
-                try {
-                    tot += grid[i][j] + grid[i + 1][j + 1] + grid[i + 1][j] + grid[i + 1][j - 1] + grid[i - 1][j + 1] + grid[i - 1][j] + grid[i - 1][j - 1] + grid[i][j + 1] + grid[i][j - 1];
-                    float f = tot / 9;
-                    grid[i][j] = Math.round(f);
-                } catch (ArrayIndexOutOfBoundsException e) {
-
-                }
-                //count++;
-
-
-                // if(grid[i][j]<-5)grid[i][j]=5;
-                // if(grid[i][j]>5)grid[i][j]=-5;
-            }
-        }
-    }
     void initGrid() {
         float[][] f3=new float[res][res];
         float check =0;
@@ -246,8 +226,6 @@ public class HeightMapState extends State {
         }
         Collections.reverse(colors);
         calcCorners();
-        //dropFloors();
-       // averageMap();
     }
     void calcCorners(){
 
@@ -301,7 +279,7 @@ public class HeightMapState extends State {
                   a   =grid[i][j];
                 }
                 float ul,ur,dl,dr;
-               ul=  EMath.average(new float[]{q,w,a,s});
+                ul=  EMath.average(new float[]{q,w,a,s});
                 ur=  EMath.average(new float[]{w,e,s,d});
                 dl=  EMath.average(new float[]{a,s,z,x});
                 dr=  EMath.average(new float[]{s,d,x,c});
@@ -320,36 +298,11 @@ public class HeightMapState extends State {
                         px1,py1,
                         px1,py3,
                         px0,py2,
-                        xavg,yavg
-                        ,ul,ur,
+                        xavg,yavg,
+                        ul,ur,
                         dl,dr
                 });
                 cells[i][j].setCorners(polygon);
-            }
-        }
-    }
-    void dropFloors() {
-
-        for (int i = 0; i < res; i++) {
-            for (int j = 0; j < res; j++) {
-                if (grid[i][j] < (float) n / (float) 2) {
-                    grid[i][j] /= 2;
-                }
-            }
-        }
-    }
-    void riseCiel() {
-
-        for (int i = 0; i < res; i++) {
-            for (int j = 0; j < res; j++) {
-                if (grid[i][j] > ((float) n * (float) 3) / (float) 4) {
-                    float f = (float) grid[i][j] / (float) n;
-                    float a = (1 - f) / 2;
-                    a *= n;
-                    grid[i][j] += a;
-                    if (grid[i][j] > n) grid[i][j] = n - 1;
-
-                }
             }
         }
     }
