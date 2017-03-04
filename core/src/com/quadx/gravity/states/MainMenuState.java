@@ -37,7 +37,7 @@ public class MainMenuState extends State{
     }
 
     private void addOptionsToList(){
-        options.add("Control");
+        options.add("Neural Network");
         options.add("Asteroids");
         options.add("Basketball");
         options.add("Soccer");
@@ -58,7 +58,7 @@ public class MainMenuState extends State{
     public static void selectOption(){
         switch (selector){
             case(0):{
-                g.push(new HeightMapState(g));
+                g.push(new NeuralState(g));
                 break;
             }
             case(1):{

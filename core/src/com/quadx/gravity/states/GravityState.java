@@ -29,7 +29,7 @@ public class GravityState extends State {
     private float twinkle=0;
     private boolean trip=false;
     private double tempAng=0;
-    public static int factor=6;
+    public static int factor=2;
     static Random rn = new Random();
     int viReduce=4;
     public GravityState(GameStateManager gsm) {
