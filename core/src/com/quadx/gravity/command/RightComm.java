@@ -1,6 +1,9 @@
 package com.quadx.gravity.command;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.Vector2;
+import com.quadx.gravity.states.PongState;
 
 
 /**
@@ -16,6 +19,15 @@ public class RightComm extends Command {
     public void execute() {
         if (pressed()) {
 
+        }
+        if (cls.equals(PongState.class)) {
+            if(Gdx.input.isKeyPressed(Input.Keys.D)){
+                PongState.p1.setPos(new Vector2(1,0));
+            }
+            if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+                PongState.p2.setPos(new Vector2(1,0));
+
+            }
         }
     }
 }

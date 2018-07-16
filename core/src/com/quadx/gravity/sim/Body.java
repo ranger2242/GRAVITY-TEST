@@ -2,9 +2,8 @@ package com.quadx.gravity.sim;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.quadx.gravity.Bullet;
 import com.quadx.gravity.EMath;
-import com.quadx.gravity.asteroids.Ship;
-import com.quadx.gravity.states.GravityState;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -39,7 +38,7 @@ public class Body {
 
     private double acc=0;
     double speed=0;
-    private double rate=Math.pow(10, GravityState.factor);
+    private double rate=Math.pow(10, 2);
     private boolean lb;
     private boolean rb;
     private boolean ub;
@@ -71,9 +70,9 @@ public class Body {
         }
         updatePoints();
     }
-    private boolean checkBullets(ArrayList<Ship.Bullet> list){
-        ArrayList<Ship.Bullet> found= new ArrayList<>();
-        for(Ship.Bullet bu: list) {
+    private boolean checkBullets(ArrayList<Bullet> list){
+        ArrayList<Bullet> found= new ArrayList<>();
+        for(Bullet bu: list) {
             bu.update();
             if(bu.death){
                 found.add(bu);
@@ -150,8 +149,8 @@ public class Body {
         }else
             return false;
     }
-    public void colA(ArrayList<Ship.Bullet> list){
-        for(Ship.Bullet b :list){
+    public void colA(ArrayList<Bullet> list){
+        for(Bullet b :list){
             for(int i=0;i<points.length;i+=2){
                 float l;
                 float p1;

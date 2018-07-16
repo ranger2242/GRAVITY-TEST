@@ -10,9 +10,9 @@ import com.quadx.gravity.Game;
 import com.quadx.gravity.neuralnetwork.Food;
 import com.quadx.gravity.neuralnetwork.Monster;
 import com.quadx.gravity.neuralnetwork.Neuron;
-import com.quadx.gravity.shapes.Circle;
-import com.quadx.gravity.shapes.Line;
-import com.quadx.gravity.shapes.ShapeRendererExt;
+import com.quadx.gravity.shapes1_4.Circle;
+import com.quadx.gravity.shapes1_4.Line;
+import com.quadx.gravity.shapes1_4.ShapeRendererExt;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -33,7 +33,7 @@ public class NeuralState extends State{
     public static float soundActivation= 0;
 
 
-    NeuralState(GameStateManager gsm) {
+    public NeuralState(GameStateManager gsm) {
         super(gsm);
         Food.initFoodList(500);
         Monster m= new Monster(new Vector2(WIDTH / 3, Game.HEIGHT * 3 / 4),Color.BLUE);

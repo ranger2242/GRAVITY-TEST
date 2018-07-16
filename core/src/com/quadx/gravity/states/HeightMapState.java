@@ -37,7 +37,7 @@ public class HeightMapState extends State {
     Vector2 playerpos=new Vector2(100,100);
 
 
-    HeightMapState(GameStateManager gsm) {
+    public HeightMapState(GameStateManager gsm) {
         super(gsm);
         initGrid();
     }

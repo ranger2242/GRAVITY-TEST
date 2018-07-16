@@ -5,10 +5,10 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.quadx.gravity.EMath;
 import com.quadx.gravity.Game;
-import com.quadx.gravity.shapes.Arc;
-import com.quadx.gravity.shapes.Circle;
-import com.quadx.gravity.shapes.Line;
-import com.quadx.gravity.shapes.Triangle;
+import com.quadx.gravity.shapes1_4.Arc;
+import com.quadx.gravity.shapes1_4.Circle;
+import com.quadx.gravity.shapes1_4.Line;
+import com.quadx.gravity.shapes1_4.Triangle;
 import com.quadx.gravity.states.NeuralState;
 
 import java.util.ArrayList;
@@ -335,7 +335,7 @@ public class Monster {
     public void setEating(boolean b){eating=b;}
     public boolean isEating(){return eating;}
     public Arc getViewArc() {
-        return new Arc(pos, sensors.get(0).length(), getAngle() - (getViewAngle() / 2), getViewAngle());
+        return new Arc(pos, sensors.get(0).length(), getAngle() - (getViewAngle() / 2), getViewAngle(),5,2);
     }
     public Color getColor() {
         return color;

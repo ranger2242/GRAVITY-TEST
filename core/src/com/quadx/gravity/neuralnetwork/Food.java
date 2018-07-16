@@ -3,7 +3,7 @@ package com.quadx.gravity.neuralnetwork;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.quadx.gravity.Game;
-import com.quadx.gravity.shapes.Circle;
+import com.quadx.gravity.shapes1_4.Circle;
 
 import java.util.ArrayList;
 import java.util.Random;

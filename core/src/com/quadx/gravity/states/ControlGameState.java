@@ -28,7 +28,7 @@ public class ControlGameState extends State{
     static float viewY;
     private float fps=0;
     static ArrayList<Integer> fpsList= new ArrayList<>();
-    ControlGameState(GameStateManager gsm) {
+    public ControlGameState(GameStateManager gsm) {
         super(gsm);
         a.initUnits();
         grid=new Grid();

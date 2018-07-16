@@ -8,12 +8,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.quadx.gravity.command.Command;
 import com.quadx.gravity.states.GameStateManager;
-import com.quadx.gravity.states.MainMenuState;
+import com.quadx.gravity.states.GravityState;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 //import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 @SuppressWarnings("ALL")
@@ -23,7 +23,9 @@ public class Game extends ApplicationAdapter {
 	public static BitmapFont font;
 	private static final BitmapFont[] fonts = new BitmapFont[6];
 	private GameStateManager gameStateManager;
+	public static final float ft = 1f/60f;
 	public static ArrayList<Command> commandList=new ArrayList<>();
+	public static Random rn = new Random();
 	public Game(){
 
 	}
@@ -49,13 +51,12 @@ public class Game extends ApplicationAdapter {
 	}
 	private static BitmapFont createFont(int x){
 		BitmapFont temp=new BitmapFont();
-
 		try {
-			FreeTypeFontGenerator generator= new FreeTypeFontGenerator(Gdx.files.internal("fonts\\prstart.ttf"));
+		/*	FreeTypeFontGenerator generator= new FreeTypeFontGenerator(Gdx.files.internal("fonts\\prstart.ttf"));
 			FreeTypeFontGenerator.FreeTypeFontParameter parameter= new FreeTypeFontGenerator.FreeTypeFontParameter();
 			parameter.size = x;
 			temp = generator.generateFont(parameter);
-			//console("Font Generated");
+			//console("Font Generated");*/
 		}
 		catch (Exception e){
 			e.printStackTrace();
@@ -71,7 +72,7 @@ public class Game extends ApplicationAdapter {
 		commandList.add(new com.quadx.gravity.command.LeftComm());
 		commandList.add(new com.quadx.gravity.command.RightComm());
 		commandList.add(new com.quadx.gravity.command.ConfirmComm());
-		//commandList.add(new com.quadx.gravity.command.BackComm());
+		//commandList.add(new com.quadx.physicsBody.command.BackComm());
 		fonts[0]=createFont(6);
 		fonts[1]=createFont(10);
 		fonts[2]=createFont(12);
@@ -83,8 +84,8 @@ public class Game extends ApplicationAdapter {
 		//WIDTH = Gdx.graphics.getWidth();
 		batch = new SpriteBatch();
 		gameStateManager = new GameStateManager();
-		gameStateManager.push(new MainMenuState(gameStateManager));
-		//gameStateManager.push(new PMotionState(gameStateManager));
+		//gameStateManager.push(new SoccerState(gameStateManager));
+		gameStateManager.push(new GravityState(gameStateManager));
 
 	}
 

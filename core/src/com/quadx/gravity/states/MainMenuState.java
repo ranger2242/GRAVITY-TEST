@@ -44,6 +44,7 @@ public class MainMenuState extends State{
         options.add("Gravity");
         options.add("RoachAI");
         options.add("Vector Test");
+        options.add("3d test");
         options.add("Exit");
     }
 
@@ -58,7 +59,7 @@ public class MainMenuState extends State{
     public static void selectOption(){
         switch (selector){
             case(0):{
-                g.push(new NeuralState(g));
+                g.push(new ControlGameState(g));
                 break;
             }
             case(1):{
@@ -83,6 +84,10 @@ public class MainMenuState extends State{
                 break;
             }
             case(7):{
+                g.push(new Test3DState(g));
+                break;
+            }
+            case(8):{
                 System.exit(0);
                 break;
             }

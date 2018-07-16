@@ -22,6 +22,8 @@ public class Paddle {
     private float ubi;
     private float dbi;
     public boolean jump=true;
+    boolean move = true;
+
 
     public Color c=Color.WHITE;
 
@@ -41,6 +43,8 @@ public class Paddle {
         db=y<d;
     }
     public void distance(Ball b){
+
+
         float dx= this.x-b.x;
         float dy= this.y-b.y;
         float m= (float) Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
@@ -52,6 +56,7 @@ public class Paddle {
             System.out.println(velx+" "+vely);
             System.out.println(" @"+deg);
         }
+
     }
     public void distance2(Paddle p){
         float dx= this.x-p.x;
@@ -85,7 +90,8 @@ public class Paddle {
         }
         this.x+=this.velx;
         this. y+=this.vely;
-        this.velx*=.995;
-        this.vely*=.995;
+        float f=.95f;
+        this.velx*=f;
+        this.vely*=f;
     }
 }

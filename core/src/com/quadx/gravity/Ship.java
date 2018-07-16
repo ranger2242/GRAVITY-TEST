@@ -1,11 +1,8 @@
-package com.quadx.gravity.asteroids;
+package com.quadx.gravity;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.quadx.gravity.EMath;
-import com.quadx.gravity.Game;
 import com.quadx.gravity.sim.Body;
 
 import java.util.ArrayList;
@@ -73,7 +70,7 @@ public class Ship {
     public void draw(ShapeRenderer shapeR){
         shapeR.setColor(c);
         shapeR.polygon(points);
-        for(Ship.Bullet bu: blist){
+        for(Bullet bu: blist){
             shapeR.circle(bu.x,bu.y,2);
         }
     }
@@ -90,14 +87,14 @@ public class Ship {
 
     }
     private void checkBullets(){
-        ArrayList<Ship.Bullet> found= new ArrayList<>();
-        for(Ship.Bullet bu: blist) {
+        ArrayList<Bullet> found= new ArrayList<>();
+        for(Bullet bu: blist) {
             bu.update();
             if(bu.death){
                 found.add(bu);
             }
         }
-        for(Ship.Bullet f:found) {
+        for(Bullet f:found) {
             blist.remove(f);
         }
     }
@@ -182,27 +179,5 @@ public class Ship {
         blist.add(new Bullet(this.x,this.y,angle+turn+180,6));
     }
 
-    public class Bullet{
-        public float x=0;
-        public float y=0;
-        public float velx=0;
-        public float vely=0;
-        public float dt=0;
-        public boolean death=false;
 
-        public Bullet(float x, float y, float ang, float mag){
-            this.x=x;
-            this.y=y;
-            velx= (float) (mag*Math.sin(Math.toRadians(ang)));
-            vely= (float) (mag*Math.cos(Math.toRadians(ang)));
-        }
-        public void update(){
-            dt+= Gdx.graphics.getDeltaTime();
-            if(dt>=1){
-                death=true;
-            }
-            x+=velx;
-            y+=vely;
-        }
-    }
 }

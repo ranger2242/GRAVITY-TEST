@@ -12,7 +12,7 @@ import java.util.Random;
  */
 public class EMath {
 
-    static Random rn = new Random();
+    public static Random rn = new Random();
     public static float pathag(Vector2 a, Vector2 b){
         return (float) Math.sqrt(Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y,2));
     }

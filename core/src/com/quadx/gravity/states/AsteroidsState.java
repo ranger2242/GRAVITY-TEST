@@ -7,11 +7,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.quadx.gravity.Game;
-import com.quadx.gravity.asteroids.Ship;
+import com.quadx.gravity.Ship;
+import com.quadx.gravity.shapes1_4.Ngon;
+import com.quadx.gravity.shapes1_4.ShapeRendererExt;
 import com.quadx.gravity.sim.Body;
 
 import java.util.ArrayList;
 
+import static com.quadx.gravity.Game.HEIGHT;
+import static com.quadx.gravity.Game.WIDTH;
 import static com.quadx.gravity.states.GravityState.rn;
 
 
@@ -20,20 +24,20 @@ import static com.quadx.gravity.states.GravityState.rn;
  */
 @SuppressWarnings("ALL")
 public class AsteroidsState extends State {
-    private Ship a = new Ship(Game.WIDTH/4, Game.HEIGHT/2 , Color.RED);
-    private Ship b = new Ship((Game.WIDTH/4)*3, Game.HEIGHT/2 , Color.BLUE);
+    private Ship a = new Ship(WIDTH/4, Game.HEIGHT/2 , Color.RED);
+    private Ship b = new Ship((WIDTH/4)*3, Game.HEIGHT/2 , Color.BLUE);
 
-    private ShapeRenderer shapeR = new ShapeRenderer();
+    private ShapeRendererExt shapeR = new ShapeRendererExt();
     private ArrayList<Vector2> stars = new ArrayList<>();
     ArrayList<Body> rocks=new ArrayList<>();
 
     public AsteroidsState(GameStateManager gsm) {
         super(gsm);
         for(int i=0;i<200;i++) {
-            stars.add(new Vector2(rn.nextInt((int) Game.WIDTH), rn.nextInt((int) Game.HEIGHT)));
+            stars.add(new Vector2(rn.nextInt((int) WIDTH), rn.nextInt((int) Game.HEIGHT)));
         }
         for(int i=0;i<1;i++) {
-            rocks.add(new Body(0,0,rn.nextInt((int) Game.WIDTH),rn.nextInt((int) Game.HEIGHT)));
+            rocks.add(new Body(0,0,rn.nextInt((int) WIDTH),rn.nextInt((int) Game.HEIGHT)));
         }
 
     }
@@ -79,7 +83,7 @@ public class AsteroidsState extends State {
             body.colA(b.blist);
             a.colB(body);
             b.colB(body);
-            body.setBounds(0, Game.WIDTH,Game.HEIGHT,0);
+            body.setBounds(0, WIDTH,Game.HEIGHT,0);
             body.move();
             body.updatePoints();
         }
@@ -90,7 +94,7 @@ public class AsteroidsState extends State {
         Body.dtSpawn+=dt;
         if(Body.dtSpawn>3){
             if(rocks.size()<10){
-                rocks.add(new Body(0,0,rn.nextInt((int) Game.WIDTH),rn.nextInt((int) Game.HEIGHT)));
+                rocks.add(new Body(0,0,rn.nextInt((int) WIDTH),rn.nextInt((int) Game.HEIGHT)));
             }
             Body.dtSpawn=0;
         }
@@ -112,10 +116,14 @@ public class AsteroidsState extends State {
             shapeR.polygon(body.getPoints());
         }
         shapeR.end();
+        shapeR.begin(ShapeRenderer.ShapeType.Line);
+        shapeR.setColor(Color.YELLOW);
+        shapeR.ngon(new Ngon(new Vector2(WIDTH/2,HEIGHT/2),200,17));
+        shapeR.end();
         sb.begin();
         Game.font.setColor(Color.WHITE);
-        Game.font.draw(sb,""+a.score,Game.WIDTH/3,Game.HEIGHT-50);
-        Game.font.draw(sb,""+b.score,(Game.WIDTH/3)*2,Game.HEIGHT-50);
+        Game.font.draw(sb,""+a.score, WIDTH/3,Game.HEIGHT-50);
+        Game.font.draw(sb,""+b.score,(WIDTH/3)*2,Game.HEIGHT-50);
         sb.end();
     }
     @Override
