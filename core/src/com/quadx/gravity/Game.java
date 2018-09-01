@@ -8,9 +8,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.quadx.gravity.command.Command;
 import com.quadx.gravity.states.GameStateManager;
-import com.quadx.gravity.states.GravityState;
+import com.quadx.gravity.states.MainMenuState;
+import com.quadx.gravity.tools1_0_1.Fonts;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -26,8 +28,14 @@ public class Game extends ApplicationAdapter {
 	public static final float ft = 1f/60f;
 	public static ArrayList<Command> commandList=new ArrayList<>();
 	public static Random rn = new Random();
-	public Game(){
+	public static Vector2 scr = new Vector2();
+	public static Vector2 mpos = new Vector2();
+	public static Vector2 mposPrev = new Vector2();
 
+	public static Vector2 mvel = new Vector2();
+
+	public Game(){
+		scr.set(WIDTH,HEIGHT);
 	}
 	public static void out(String s){
 		System.out.println(s);
@@ -63,6 +71,14 @@ public class Game extends ApplicationAdapter {
 		}
 		return temp;
 	}
+
+	public static void setScr(int i, int i1) {
+		scr.set(i,i1);
+		WIDTH=i;
+		HEIGHT=i1;
+		Gdx.graphics.setWindowedMode((int)scr.x,(int)scr.y);
+	}
+
 	@Override
 	public void create () {
 		font = new BitmapFont();
@@ -73,6 +89,7 @@ public class Game extends ApplicationAdapter {
 		commandList.add(new com.quadx.gravity.command.RightComm());
 		commandList.add(new com.quadx.gravity.command.ConfirmComm());
 		//commandList.add(new com.quadx.physicsBody.command.BackComm());
+		Fonts.initFonts();
 		fonts[0]=createFont(6);
 		fonts[1]=createFont(10);
 		fonts[2]=createFont(12);
@@ -85,7 +102,7 @@ public class Game extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		gameStateManager = new GameStateManager();
 		//gameStateManager.push(new SoccerState(gameStateManager));
-		gameStateManager.push(new GravityState(gameStateManager));
+		gameStateManager.push(new MainMenuState(gameStateManager));
 
 	}
 

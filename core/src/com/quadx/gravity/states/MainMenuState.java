@@ -37,6 +37,7 @@ public class MainMenuState extends State{
     }
 
     private void addOptionsToList(){
+        options.add("Civ Sim");
         options.add("Neural Network");
         options.add("Asteroids");
         options.add("Basketball");

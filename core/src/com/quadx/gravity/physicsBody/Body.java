@@ -20,7 +20,7 @@ import static com.quadx.gravity.states.GravityState.rn;
  */
 public class Body {
 
-    private final Vector2 pos = new Vector2();
+    public final Vector2 pos = new Vector2();
     private final Vector2 vel = new Vector2();
     private final Vector2 acc = new Vector2();
     private final Vector2 unit = new Vector2();
@@ -185,5 +185,10 @@ public class Body {
 
     public void flipVel() {
         vel.scl(-1);
+    }
+
+    public void setPos(Vector2 pos) {
+        this.pos.set(pos);
+        shape.center.set(pos);
     }
 }

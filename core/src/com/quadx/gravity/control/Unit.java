@@ -2,9 +2,12 @@ package com.quadx.gravity.control;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.quadx.gravity.EMath;
 import com.quadx.gravity.Game;
+import com.quadx.gravity.shapes1_5_2.Rect;
+import com.quadx.gravity.tools1_0_1.timers1_0_1.Delta;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -12,96 +15,101 @@ import java.util.Random;
 import static com.quadx.gravity.EMath.pathag;
 import static com.quadx.gravity.Game.HEIGHT;
 import static com.quadx.gravity.Game.WIDTH;
+import static com.quadx.gravity.control.Resource.Type.Food;
 import static com.quadx.gravity.control.Resource.Type.Wood;
+import static com.quadx.gravity.control.Unit.State.Rest;
 import static com.quadx.gravity.states.ControlGameState.grid;
+import static com.quadx.gravity.states.ControlGameState.view;
 
 /**
  * Created by Chris Cavazos on 9/29/2016.
  */
 public class Unit {
-    Random rn = new Random();
-    int radius = 5;
-    static int cost = 200;
-    Vector2 opos;
-    private Vector2 init = null;
+    ArrayList<Vector2> farmPlot = null;
+
+    private Vector2 init = new Vector2();
     private Vector2 pos = init;
-    boolean buildmode = false;
-    float dtChangeDir = 0;
     private Vector2 destination = pos;
     Vector2 previousPos = new Vector2(Game.WIDTH / 2, Game.HEIGHT / 2);
+    Vector2 opos;
+
+    Random rn = new Random();
     private Color c = new Color(rn.nextFloat(), rn.nextFloat(), rn.nextFloat(), 1);
-    private float moveSpeed = 1f;
-    private int resourceIndex = -1;
-    float standTime = 0;
     Resource.Type targetRessource = null;
-    Player owner = null;
-    float dtHunger = 0;
-    private boolean dead = false;
-    protected int objective = 25;
     State state = State.Stand;
+    Player owner = null;
+
+    Delta dLife = new Delta(rn.nextFloat() * (rn.nextInt(100) + 100));//what the actual fuck
+    Delta dChangeDir = new Delta(10);
+    Delta dHunger = new Delta(20);
+
+    private float moveSpeed = 1f;
+    float standTime = 0;
+    float energy = 15f;
+    float eMax=15;
+
+    boolean planter = false;
+    boolean buildmode = false;
+    private boolean dead = false;
+
+    protected int objective = 25;
+    private int resourceIndex = -1;
+    static int cost = 200;
+    int radius = 8;
     int ca = 0;
     int cc = 0;
-    float energy = 15f;
-    ArrayList<Vector2> farmPlot = null;
     int plotCounter = 0;
-    float dtEndLife = rn.nextFloat() * (rn.nextInt(100) + 100);
-    float dtLife = 0;
+
+    public Rectangle getEnergyBar() {
+       return Rect.rect(new Vector2(pos).add(view).add(-radius,radius),radius*2,2);
+    }
+    public Rectangle getLifeBar(){
+        return Rect.rect(new Vector2(pos).add(view).add(-radius,radius+2),2*radius*(1-dLife.percent()),2);
+    }
 
     enum State {
         Stand, Gather, Build, Plant, Rest
     }
 
+    Unit(Player player, Vector2 p) {
+        pos.set(p);
+        init.set(pos);
+        owner = player;
+    }
+
     public Unit() {
-        pos = new Vector2(0, 0);
+        this(null, new Vector2());
     }
 
     public Unit(Player p, float x, float y) {
-
-        pos = new Vector2(x, y);
-        init = pos;
-        owner = p;
+        this(p, new Vector2(x, y));
     }
 
-    public Vector2 getPosition() {
-        return pos;
-    }
-
-    public Hitbox getHitBox() {
-        return new Hitbox(Hitbox.HitboxShape.Circle, pos, radius);
-    }
-
-    void checkHunger() {
-        if (dtHunger > 20) {
-            if (owner.food > 10)
-                owner.addResource(Resource.Type.Food, -10);
-            else dead = true;
-            dtHunger = 0;
-        }
-        if (dtLife > dtEndLife) {
-            dead = true;
-        }
-    }
-
-    public void move() {
-        float dt = Gdx.graphics.getDeltaTime();
-        dtLife = dt;
-        dtChangeDir += dt;
-        dtHunger += dt;
-        checkHunger();
-        previousPos = pos;
-        if (state != State.Rest) {
+    void spendEnergy(float dt){
+        if(state==Rest){
+            if(EMath.pathag(pos, destination) < 2){
+                energy += dt;
+                if (energy >= eMax) {
+                    changeState(State.Gather, targetRessource);
+                }
+            }
+        }else{
             energy -= dt;
             if (energy <= 0) {
-                changeState(State.Rest, targetRessource);
+                changeState(Rest, targetRessource);
             }
         }
+    }
+    public void move() {
+        float dt = Gdx.graphics.getDeltaTime();
+        dLife.update(dt);
+        dChangeDir.update(dt);
 
-        if (state == State.Rest && EMath.pathag(pos, destination) < 2) {
-            energy += dt;
-            if (energy >= 15) {
-                changeState(State.Gather, targetRessource);
-            }
-        }
+        checkHunger(dt);
+        previousPos = pos;
+
+        spendEnergy(dt);
+
 
         float dx;
         float dy;
@@ -115,7 +123,7 @@ public class Unit {
             Vector2 moveAwayFrom = null;
 
             for (Unit u : owner.unitList) {
-                if (!u.equals(this) && state != State.Rest) {
+                if (!u.equals(this) && state != Rest) {
                     if (Collision.circlular(getHitBox(), u.getHitBox())) {
                         canMove = false;
                         moveAwayFrom = u.getPosition();
@@ -154,7 +162,7 @@ public class Unit {
                 makeResource(targetRessource);
 
             }
-            if (state != State.Rest) {
+            if (state != Rest) {
                 if (standTime > 5) {
                     standTime = 0;
                     checkState();
@@ -163,13 +171,18 @@ public class Unit {
         }
     }
 
-    public void changeState(State state, Resource.Type target) {
+    void checkHunger(float dt) {
+        owner.sub(Food, .01);
+        dead = dLife.isDone() || owner.food <= 0;
+    }
+
+    void changeState(State state, Resource.Type target) {
         targetRessource = target;
         this.state = state;
         checkState();
     }
 
-    public void checkState() {
+    void checkState() {
         switch (state) {
 
             case Stand: {
@@ -204,7 +217,7 @@ public class Unit {
         Resource r = new Resource(type, farmPlot.get(plotCounter).x, farmPlot.get(plotCounter).y);
         grid.resources.add(r);
         owner.addResource(Wood, -1);
-        owner.addResource(Resource.Type.Food, -1);
+        owner.addResource(Food, -1);
         // c = Color.WHITE;
         plotCounter++;
         objective--;
@@ -214,7 +227,7 @@ public class Unit {
         }
     }
 
-    public void plotFarm(Resource.Type type) {
+    void plotFarm(Resource.Type type) {
         targetRessource = type;
         ArrayList<Vector2> dests = new ArrayList<>();
         Vector2 op = pos;
@@ -237,16 +250,12 @@ public class Unit {
 
     }
 
-    public Color getColor() {
-        return c;
-    }
-
-    public void buildToggle() {
+    void buildToggle() {
         buildmode = !buildmode;
     }
 
-    public void build(Building b) {
-
+    void build(Building b) {
+        buildToggle();
         if (buildmode) {
             boolean canbuild = true;
             if (b.getType() == Building.Type.House && owner.population == owner.popmax) {
@@ -266,8 +275,8 @@ public class Unit {
                     owner.addResource(b.costType, -b.cost);
                     buildToggle();
                 } else {
-                    if (dtChangeDir > 5) {
-                        if (dtChangeDir > 10) {
+                    if (dChangeDir.percent() > .5) {
+                        if (dChangeDir.isDone()) {
                             buildToggle();
                             //dtChangeDir=0;
                         } else {
@@ -290,7 +299,7 @@ public class Unit {
                         }
                     } else {
                         destination = new Vector2(rn.nextInt((int) Game.WIDTH), rn.nextInt((int) Game.HEIGHT));
-                        dtChangeDir = 0;
+                        dChangeDir.reset();
                     }
                 }
             }
@@ -301,7 +310,58 @@ public class Unit {
 
     }
 
-    public int findNearest(Resource.Type type) {
+    void gather(Resource.Type type) {
+        targetRessource = type;
+        int found = findNearest(type);
+        if (found != -1) {
+            destination = grid.resources.get(found).getPosition();
+            resourceIndex = found;
+        }
+    }
+
+    void gather2(Resource.Type type) {
+        int found = findNthClosest(3, type);
+        if (found != -1) {
+            destination = grid.resources.get(found).getPosition();
+            resourceIndex = found;
+        }
+    }
+
+    void consume() {
+        if (resourceIndex != -1 && resourceIndex < grid.resources.size() && Collision.circlular(getHitBox(), grid.resources.get(resourceIndex).getHitBox())) {
+            grid.resources.get(resourceIndex).consume(owner);
+            if (grid.resources.get(resourceIndex).getDt() <= 0) {
+                gather(targetRessource);
+            }
+        }
+    }
+
+
+    public boolean collides(Resource r) {
+        return Collision.circlular(getHitBox(), r.getHitBox());
+    }
+
+    public boolean isPlanter() {
+        return planter;
+    }
+
+    public int getResourceIndex() {
+        return resourceIndex;
+    }
+
+    public Vector2 getPosition() {
+        return pos;
+    }
+
+    public Color getColor() {
+        return c;
+    }
+
+    Hitbox getHitBox() {
+        return new Hitbox(Hitbox.HitboxShape.Circle, pos, radius);
+    }
+
+    int findNearest(Resource.Type type) {
         int found = -1;
         float minDistance = 100000;
         for (Resource r : grid.resources) {
@@ -319,7 +379,7 @@ public class Unit {
         return found;
     }
 
-    public int findNthClosest(int n, Resource.Type type) {
+    int findNthClosest(int n, Resource.Type type) {
         ArrayList<Vector2> list = new ArrayList<>();
         for (Resource r : grid.resources) {
             if (r.getType() == type) {
@@ -351,38 +411,7 @@ public class Unit {
         }
     }
 
-
-    public void gather(Resource.Type type) {
-        targetRessource = type;
-        int found = findNearest(type);
-        if (found != -1) {
-            destination = grid.resources.get(found).getPosition();
-            resourceIndex = found;
-        }
-    }
-
-    void gather2(Resource.Type type) {
-        int found = findNthClosest(3, type);
-        if (found != -1) {
-            destination = grid.resources.get(found).getPosition();
-            resourceIndex = found;
-        }
-    }
-
-    public void consume() {
-        if (resourceIndex != -1 && resourceIndex < grid.resources.size() && Collision.circlular(getHitBox(), grid.resources.get(resourceIndex).getHitBox())) {
-            grid.resources.get(resourceIndex).consume(owner);
-            if (grid.resources.get(resourceIndex).getDt() <= 0) {
-                gather(targetRessource);
-            }
-        }
-    }
-
-    public int getResourceIndex() {
-        return resourceIndex;
-    }
-
-    public boolean isDead() {
+    boolean isDead() {
         return dead;
     }
 }

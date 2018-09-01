@@ -75,10 +75,11 @@ public class Building {
             if(dtSpawn>1){
                 if(owner.food>=3*Unit.cost) {
                     if (owner.getPop() < owner.getPopMax()) {
-                        Unit u = new Unit(owner, this.pos.x,this.pos.x);
+                        Unit u = new Unit(owner, this.pos);
                         u.changeState(Unit.State.Gather,Resource.getRandomResource());
                         owner.unitList.add(u);
                         dtSpawn = 0;
+                        owner.setPopulation();
                     }
                     owner.addResource(Resource.Type.Food,-Unit.cost);
                 }

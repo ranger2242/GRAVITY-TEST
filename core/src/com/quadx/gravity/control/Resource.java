@@ -21,6 +21,10 @@ public class Resource {
 
     Player takenBy = null;
 
+    Resource(Type t, Vector2 v){
+        this(t,v.x,v.y);
+    }
+
     Resource(Type t,float x, float y){
         type=t;
         pos=new Vector2(x,y);
@@ -88,7 +92,7 @@ public class Resource {
     public Type getType() {
         return type;
     }
-    public boolean isDead() {
+    public boolean isEmpty() {
         return dead;
     }
     public int getValue() {
