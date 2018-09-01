@@ -125,15 +125,20 @@ public class EMath {
     public static Vector2 randInt(Vector2 v) {
         return new Vector2(rn.nextInt((int) v.x), rn.nextInt((int) v.y));
     }
+
     public static Vector2 randInt(int i) {
-        return randInt(new Vector2(i,i));
+        return randInt(new Vector2(i, i));
     }
-     public static Object getRand(ArrayList l){
+
+    public static Object getRand(ArrayList l) {
         return l.get(rn.nextInt(l.size()));
-     }
+    }
 
     public static Vector2 randGauss() {
-        return new Vector2((float) rn.nextGaussian(), (float)rn.nextGaussian());
+        return new Vector2((float) rn.nextGaussian(), (float) rn.nextGaussian());
+    }
 
+    public static Vector2 randSign(Vector2 add) {
+        return add.scl(rn.nextBoolean() ? 1 : -1, rn.nextBoolean() ? 1 : -1);
     }
 }

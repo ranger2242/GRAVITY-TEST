@@ -4,20 +4,19 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.quadx.gravity.EMath;
 import com.quadx.gravity.Game;
-import com.quadx.gravity.shapes1_5_2.Rect;
+import com.quadx.gravity.shapes1_5_2.*;
 import com.quadx.gravity.tools1_0_1.timers1_0_1.Delta;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-import static com.quadx.gravity.EMath.pathag;
 import static com.quadx.gravity.Game.HEIGHT;
 import static com.quadx.gravity.Game.WIDTH;
 import static com.quadx.gravity.control.Resource.Type.Food;
 import static com.quadx.gravity.control.Resource.Type.Wood;
 import static com.quadx.gravity.control.Unit.State.Rest;
+import static com.quadx.gravity.shapes1_5_2.EMath.pathag;
 import static com.quadx.gravity.states.ControlGameState.grid;
 import static com.quadx.gravity.states.ControlGameState.view;
 
@@ -44,9 +43,9 @@ public class Unit {
     Delta dHunger = new Delta(20);
 
     private float moveSpeed = 1f;
-    float standTime = 0;
+    float rechargeTime = 0;
     float energy = 15f;
-    float eMax=15;
+    float eMax = 15;
 
     boolean planter = false;
     boolean buildmode = false;
@@ -61,10 +60,11 @@ public class Unit {
     int plotCounter = 0;
 
     public Rectangle getEnergyBar() {
-       return Rect.rect(new Vector2(pos).add(view).add(-radius,radius),radius*2,2);
+        return Rect.rect(new Vector2(pos).add(view).add(-radius, radius), radius * 2 * (energy / 15f), 2);
     }
-    public Rectangle getLifeBar(){
-        return Rect.rect(new Vector2(pos).add(view).add(-radius,radius+2),2*radius*(1-dLife.percent()),2);
+
+    public Rectangle getLifeBar() {
+        return Rect.rect(new Vector2(pos).add(view).add(-radius, radius + 2), 2 * radius * (1 - dLife.percent()), 2);
     }
 
     enum State {
@@ -85,21 +85,35 @@ public class Unit {
         this(p, new Vector2(x, y));
     }
 
-    void spendEnergy(float dt){
-        if(state==Rest){
-            if(EMath.pathag(pos, destination) < 2){
+    void spendEnergy(float dt) {
+        if (state == Rest) {
+            if (pathag(pos, destination) < 2) {
                 energy += dt;
                 if (energy >= eMax) {
                     changeState(State.Gather, targetRessource);
                 }
             }
-        }else{
+        } else {
             energy -= dt;
             if (energy <= 0) {
                 changeState(Rest, targetRessource);
             }
         }
     }
+
+    boolean collisionCheck(Unit u) {
+        return !u.equals(this) && state != Rest && Collision.circlular(getHitBox(), u.getHitBox());
+    }
+
+    boolean hasNextFarmPlot() {
+        return state == State.Plant && (!(farmPlot.isEmpty() || pos.equals(destination)));
+    }
+
+    boolean canConsume() {
+        return resourceIndex != -1 && resourceIndex < grid.resources.size()
+                && Collision.circlular(getHitBox(), grid.resources.get(resourceIndex).getHitBox());
+    }
+
     public void move() {
         float dt = Gdx.graphics.getDeltaTime();
         dLife.update(dt);
@@ -110,62 +124,29 @@ public class Unit {
 
         spendEnergy(dt);
 
+        Vector2 d = new Vector2();
+        plotCounter %= 24;
 
-        float dx;
-        float dy;
-        if (plotCounter > 24) plotCounter = 0;
-        if (state == State.Plant && !farmPlot.isEmpty() && !pos.equals(destination)) {
-            destination = farmPlot.get(plotCounter);
-        }
+
         if (state != State.Stand) {
+            if (hasNextFarmPlot())
+                destination.set(farmPlot.get(plotCounter));
 
-            boolean canMove = true;
-            Vector2 moveAwayFrom = null;
-
-            for (Unit u : owner.unitList) {
-                if (!u.equals(this) && state != Rest) {
-                    if (Collision.circlular(getHitBox(), u.getHitBox())) {
-                        canMove = false;
-                        moveAwayFrom = u.getPosition();
-                    }
-                }
-                try {
-                    dx = pos.x - destination.x;
-                    dy = pos.y - destination.y;
-                } catch (NullPointerException e) {
-                    dx = pos.x;
-                    dy = pos.y;
-                }
-                float dist = pathag(dx, dy);
-
-                if (resourceIndex != -1 && resourceIndex < grid.resources.size() && Collision.circlular(getHitBox(), grid.resources.get(resourceIndex).getHitBox())) {
-                    consume();
-                } else {
-                    if (canMove) {
-                        float angle = (float) Math.atan2(dy, dx);
-                        pos.x -= moveSpeed * Math.cos(angle);
-                        pos.y -= moveSpeed * Math.sin(angle);
-                    } else {
-
-                        float angle = (float) Math.atan2(moveAwayFrom.y - pos.y, moveAwayFrom.x - pos.x);
-                        pos.x -= moveSpeed * Math.cos(angle);
-                        pos.y -= moveSpeed * Math.sin(angle);
-                        gather2(targetRessource);
-                    }
-                }
+            d.set(new Vector2(pos).sub(destination));
+            if (canConsume()) {
+                consume();
+            } else {
+                pos.set(pos.lerp(destination, .1f));
             }
-            if (previousPos.x - pos.x == 0 && previousPos.y - pos.y == 0) {
-                standTime += Gdx.graphics.getDeltaTime();
-            }
+
             if (state == State.Plant) {
-                float f = Math.abs(EMath.pathag(pos.x, destination.x, pos.y, destination.y));
                 makeResource(targetRessource);
-
             }
             if (state != Rest) {
-                if (standTime > 5) {
-                    standTime = 0;
-                    checkState();
+                rechargeTime += Gdx.graphics.getDeltaTime();
+                if (rechargeTime > 5) {
+                    rechargeTime = 0;
+                    doAction();
                 }
             }
         }
@@ -179,12 +160,11 @@ public class Unit {
     void changeState(State state, Resource.Type target) {
         targetRessource = target;
         this.state = state;
-        checkState();
+        doAction();
     }
 
-    void checkState() {
+    void doAction() {
         switch (state) {
-
             case Stand: {
                 destination = pos;
                 break;
@@ -201,16 +181,14 @@ public class Unit {
                 break;
             }
             case Rest: {
-                int index = rn.nextInt(owner.buildingList.size());
-                // int count =0;
-                // while(!owner.buildingList.get(index).getType().equals(Building.Type.House) && count<5) {
-                //    index=rn.nextInt(owner.buildingList.size());
-                //    count++;
-                // }
-                destination = owner.buildingList.get(index).getPosition();
+                goHome();
                 break;
             }
         }
+    }
+
+    private void goHome() {
+        destination = ((Building) EMath.getRand(owner.buildingList)).getPosition();
     }
 
     void makeResource(Resource.Type type) {
@@ -230,20 +208,14 @@ public class Unit {
     void plotFarm(Resource.Type type) {
         targetRessource = type;
         ArrayList<Vector2> dests = new ArrayList<>();
-        Vector2 op = pos;
-        int xshift = rn.nextInt(10) + 1;
-        int yshift = rn.nextInt(10) + 1;
-        if (rn.nextBoolean()) xshift *= -1;
-        if (rn.nextBoolean()) yshift *= -1;
-        int dx = rn.nextInt(10) + 4;
-        int dy = rn.nextInt(10) + 4;
-        if (rn.nextBoolean()) dx *= -1;
-        if (rn.nextBoolean()) dy *= -1;
+        Vector2 sh = EMath.randSign(EMath.randInt(10).add(1, 1)).add(20, 20);
+        Vector2 d = EMath.randSign(EMath.randInt(10).add(4, 4));
+
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
-                int x = (int) (op.x + (i * (20 + xshift)) + ((j * dx)));
-                int y = (int) (op.y + (j * (20 + yshift)) + ((i * dy)));
-                dests.add(new Vector2(x, y));
+                Vector2 a = new Vector2(i * sh.x, sh.y * j);
+                Vector2 b = new Vector2(j * d.x, d.y * i);
+                dests.add(new Vector2(pos).add(a).add(b));
             }
         }
         farmPlot = dests;
