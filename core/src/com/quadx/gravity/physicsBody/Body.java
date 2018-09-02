@@ -103,7 +103,7 @@ public class Body {
         return getVector(-force, b.pos, pos);
     }
 
-    public Vector2 getVector(double vel, Vector2 start, Vector2 end) {
+    public static Vector2 getVector(double vel, Vector2 start, Vector2 end) {
         float dx = EMath.dx(end, start);
         float dy = EMath.dy(end, start);
         double theta = Math.atan2(dy, dx);

@@ -61,10 +61,10 @@ public class Roach {
                 dtDirectionChange=0;
             }
             moving=true;
-            //move();
+            //update();
         }
         ////////////////////////////////////////////
-        //Checks if roach is supposed to move
+        //Checks if roach is supposed to update
         if(moving){
             if(energy>0){
                 move();

@@ -141,4 +141,14 @@ public class EMath {
     public static Vector2 randSign(Vector2 add) {
         return add.scl(rn.nextBoolean() ? 1 : -1, rn.nextBoolean() ? 1 : -1);
     }
+
+    public static boolean isInRange(float a, float min, float max){
+        return a>=min || a<=max;
+    }
+    public static float inRange(float a, float b) {
+        float a1 = Math.min(a, b);
+        float b1 = Math.max(a, b);
+        float r = b1 - a1;
+        return (r * rn.nextFloat()) + a1;
+    }
 }

@@ -18,7 +18,10 @@ import static com.quadx.gravity.control.Unit.State.Plant;
  */
 public class Player {
     public ArrayList<Unit> unitList = new ArrayList<>();
+    public ArrayList<Unit> newUnits = new ArrayList<>();
+
     public ArrayList<Building> buildingList = new ArrayList<>();
+    static Building spawner;
     double wood = 0;
     int population = 0;
     int popmax = 25;
@@ -39,9 +42,10 @@ public class Player {
         }
         for (Unit u : unitList) {
             boolean b = rn.nextBoolean();
-            u.changeState(Gather, b ? Wood : Food);
+            u.setState(Gather, b ? Wood : Food);
         }
-        buildingList.add(new Building(this, Spawn, new Vector2(scr).scl(.5f)));
+        spawner = new Building(this, Spawn, new Vector2(scr).scl(.5f));
+        buildingList.add(spawner);
         setPopulation();
     }
 
@@ -49,12 +53,17 @@ public class Player {
         for (int i = unitList.size() - 1; i >= 0; i--) {
             if (unitList.get(i).isDead()) {
                 unitList.remove(i);
+                System.out.println("DEATH"+unitList.size());
                 setPopulation();
             }
         }
         for (Unit u : unitList) {
-            u.move();
+            u.update();
         }
+        unitList.addAll(newUnits);
+        if(!newUnits.isEmpty())
+        System.out.println("SPAWN"+unitList.size());
+        newUnits.clear();
     }
     void setPopmax(){
         popmax = 25 + (houses * 5);
@@ -74,13 +83,13 @@ public class Player {
     }
 
     Resource.Type priorityResource() {
-        return (wood / 2) < food ? Wood : Food;
+        return wood  < food ? Wood : Food;
     }
 
     void clearPlanters(){
         for (Unit n : unitList) {
-            if (n.state==Plant)
-                n.changeState(Gather, Resource.getCalcResource(this));
+            if (n.getState()==Plant)
+                n.setState(Gather, Resource.getCalcResource(this));
         }
     }
     void setPlanters(){
@@ -89,7 +98,10 @@ public class Player {
         for (int i = 0; i < per; i++) {
             int index = rn.nextInt(unitList.size());
             if (rn.nextFloat()<.25f) {
-                unitList.get(index).changeState(Unit.State.Plant, priorityResource());
+                Unit u=unitList.get(index);
+                u.setState(Unit.State.Plant, priorityResource());
+                u.plotFarm(u.targetRessource);
+
             }
         }
     }

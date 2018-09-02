@@ -2,7 +2,6 @@ package com.quadx.gravity.states;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -27,11 +26,13 @@ public class ControlGameState extends State {
     Player a = new Player();
     Player b = new Player();
     boolean debug = false;
+    Input in = Gdx.input;
+
 
 
     public ControlGameState(GameStateManager gsm) {
         super(gsm);
-        Game.setScr(800,800);
+        Game.setScr(1800,900);
         a.initUnits();
         grid = new Grid();
     }
@@ -54,8 +55,6 @@ public class ControlGameState extends State {
         float y = (pressed(Keys.S) ? r : 0) + (pressed(Keys.W) ? -r : 0);
         camC.add(x, y);
     }
-
-    Input in = Gdx.input;
 
     boolean pressed(int k) {
         return in.isKeyPressed(k);
@@ -88,7 +87,7 @@ public class ControlGameState extends State {
     public void update(float dt) {
         updateCamPosition();
         handleInput();
-        grid.clearSpentResources();
+        grid.update(dt);
         a.update(dt);
         fpsModule.update(dt);
     }
@@ -100,22 +99,32 @@ public class ControlGameState extends State {
         cam.setToOrtho(false);
         sr.setProjectionMatrix(cam.combined);
         sb.setProjectionMatrix(cam.combined);
+
+        sb.begin();
+      /*  for (Unit u : a.unitList) {
+            Game.getFont().draw(sb,
+                    Unit.State.values()[u.getState().ordinal()]
+                            .toString().toLowerCase().charAt(0)+"",u.pos().x+view.x,u.pos().y+view.y);
+        }*/
+        sb.end();
+
+
         sr.begin(ShapeRenderer.ShapeType.Filled);
         for (Unit u : a.unitList) {
             sr.setColor(u.getColor());
-            sr.circle(view.x + u.getPosition().x, view.y + u.getPosition().y, 5);
-            sr.setColor(Color.GREEN);
+            sr.circle(view.x + u.pos().x, view.y + u.pos().y, 5);
+          /*  sr.setColor(Color.GREEN);
             sr.rect(u.getEnergyBar());
             sr.setColor(Color.RED);
-            sr.rect(u.getLifeBar());
+            sr.rect(u.getLifeBar());*/
         }
         for (Resource r : grid.resources) {
             sr.setColor(r.getColor());
-            sr.circle(view.x + r.getPosition().x, view.y + r.getPosition().y, 2);
+            sr.circle(view.x + r.pos().x, view.y + r.pos().y, 2);
         }
         for (Building bu : a.buildingList) {
             sr.setColor(bu.getColor());
-            sr.circle(view.x + bu.getPosition().x, view.y + bu.getPosition().y, bu.radius);
+            sr.circle(view.x + bu.pos().x, view.y + bu.pos().y, bu.radius);
         }
         sr.end();
 
@@ -128,7 +137,7 @@ public class ControlGameState extends State {
 
         if (debug) {
             for (Unit u : a.unitList) {
-                Game.getFont().draw(sb, "" + u.getResourceIndex(), view.x + u.getPosition().x, view.y + u.getPosition().y + 10);
+                Game.getFont().draw(sb, "" + u.getResourceIndex(), view.x + u.pos().x, view.y + u.pos().y + 10);
             }
         }
         sb.end();

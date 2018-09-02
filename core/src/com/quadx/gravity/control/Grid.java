@@ -33,20 +33,25 @@ public class Grid {
             seeds.add(EMath.randInt(scr));
         }
         for (int i = 0; i < 1000; i++) {
-            Vector2 gauss = EMath.randGauss().scl(EMath.randInt(100));
+            Vector2 gauss = EMath.randGauss().scl(EMath.randInt(50));
             Vector2 pos = ((Vector2) EMath.getRand(seeds)).add(gauss);
             trees2.add(new Resource(type, pos));
         }
         resources.addAll(trees2);
     }
 
-    public void clearSpentResources() {
+    public void clearSpentResources(float dt) {
         for (int i = resources.size() - 1; i >= 0; i--) {
-            Resource r = resources.get(i);
-            if (r.isEmpty()) {
+            if (resources.get(i).isEmpty()) {
                 resources.remove(i);
-            }
+            }else
+                resources.get(i).update(dt);
         }
+
+    }
+
+    public void update(float dt) {
+        clearSpentResources(dt);
 
     }
 }

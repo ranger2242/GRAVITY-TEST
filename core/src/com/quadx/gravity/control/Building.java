@@ -9,7 +9,7 @@ import java.util.Random;
  * Created by Chris Cavazos on 9/30/2016.
  */
 public class Building {
-    Vector2 pos;
+    Vector2 pos=new Vector2();
     public int radius = 15;
     int cost = 500;
     Color c = Color.WHITE;
@@ -76,7 +76,7 @@ public class Building {
                 if(owner.food>=3*Unit.cost) {
                     if (owner.getPop() < owner.getPopMax()) {
                         Unit u = new Unit(owner, this.pos);
-                        u.changeState(Unit.State.Gather,Resource.getRandomResource());
+                        u.setState(Unit.State.Gather,Resource.getRandomResource());
                         owner.unitList.add(u);
                         dtSpawn = 0;
                         owner.setPopulation();
@@ -87,7 +87,7 @@ public class Building {
         }
     }
 
-    public Vector2 getPosition() {
-        return pos;
+    public Vector2 pos() {
+        return new Vector2(pos);
     }
 }
