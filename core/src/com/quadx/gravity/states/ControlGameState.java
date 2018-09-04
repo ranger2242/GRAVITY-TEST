@@ -2,6 +2,7 @@ package com.quadx.gravity.states;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -29,10 +30,9 @@ public class ControlGameState extends State {
     Input in = Gdx.input;
 
 
-
     public ControlGameState(GameStateManager gsm) {
         super(gsm);
-        Game.setScr(1800,900);
+        Game.setScr(1920, 1080);
         a.initUnits();
         grid = new Grid();
     }
@@ -68,19 +68,19 @@ public class ControlGameState extends State {
         if (pressed(Keys.F1)) {
             debug = !debug;
         }
-            if (pressed(Keys.Q)) {//spawn unit
+        if (pressed(Keys.Q)) {//spawn unit
                 /*Vector2 p = new Vector2(scr.x * .2f, rn.nextInt((int) scr.y));
                 a.unitList.add(new Unit(a, p));
                 boolean b = rn.nextBoolean();
                 Resource.Type r = b ? Food : Wood;
                 a.unitList.get(a.unitList.size() - 1).gather(r);*/
-            }
-            if (pressed(Keys.E)) {
+        }
+        if (pressed(Keys.E)) {
               /*  int index = rn.nextInt(a.unitList.size());
                 if (index == 0)
                     index = 1;
                 a.unitList.remove(index);*/
-            }
+        }
     }
 
     @Override
@@ -113,7 +113,13 @@ public class ControlGameState extends State {
         for (Unit u : a.unitList) {
             sr.setColor(u.getColor());
             sr.circle(view.x + u.pos().x, view.y + u.pos().y, 5);
-          /*  sr.setColor(Color.GREEN);
+            if (u.getState() == Unit.State.Plant) {
+                sr.setColor(Color.GREEN);
+                sr.circle(view.x + u.pos().x, view.y + u.pos().y, 10);
+
+
+            }
+/*            sr.setColor(Color.GREEN);
             sr.rect(u.getEnergyBar());
             sr.setColor(Color.RED);
             sr.rect(u.getLifeBar());*/
@@ -129,19 +135,20 @@ public class ControlGameState extends State {
         sr.end();
 
 
-
         sb.begin();
         Game.getFont().draw(sb, "POP:" + a.getPop() + "/" + a.getPopMax(), 30, Game.HEIGHT - 60);
         Game.getFont().draw(sb, "WOOD:" + a.getWood(), 30, Game.HEIGHT - 30);
         Game.getFont().draw(sb, "FOOD:" + a.getFood(), 30, Game.HEIGHT - 90);
+        for (Unit u : a.unitList) {
+            //Game.getFont().draw(sb, "" + u.getResourceIndex(), view.x + u.pos().x, view.y + u.pos().y + 10);
+            if (u.getState() == Unit.State.Plant) {
+                Game.getFont().draw(sb, "" + u.farmPlot.size(), view.x + u.pos().x, view.y + u.pos().y + 10);
 
-        if (debug) {
-            for (Unit u : a.unitList) {
-                Game.getFont().draw(sb, "" + u.getResourceIndex(), view.x + u.pos().x, view.y + u.pos().y + 10);
             }
         }
+
         sb.end();
-        fpsModule.render(sb,sr,new Vector2(30,30));
+        fpsModule.render(sb, sr, new Vector2(30, 30));
     }
 
     @Override

@@ -32,7 +32,7 @@ public class Grid {
         for (int i = 0; i < init; i++) {
             seeds.add(EMath.randInt(scr));
         }
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 200; i++) {
             Vector2 gauss = EMath.randGauss().scl(EMath.randInt(50));
             Vector2 pos = ((Vector2) EMath.getRand(seeds)).add(gauss);
             trees2.add(new Resource(type, pos));

@@ -28,7 +28,7 @@ import static com.quadx.gravity.tools1_0_1.timers1_0_1.Time.SECOND;
  * Created by Chris Cavazos on 9/29/2016.
  */
 public class Unit {
-    ArrayList<Vector2> farmPlot = null;
+    public ArrayList<Vector2> farmPlot = null;
 
     private Vector2 init = new Vector2();
     private Vector2 pos = new Vector2();
@@ -75,7 +75,7 @@ public class Unit {
     }
 
     public Rectangle getLifeBar() {
-        return Rect.rect(pos().add(view).add(-radius, radius + 2), 2 * radius * (1 - dLife.percent()), 2);
+        return Rect.rect(pos().add(view).add(-radius, radius + 2), 2 * radius * (1 - dLife.percent()), 4);
     }
 
     public State getState() {
@@ -106,11 +106,12 @@ public class Unit {
     }
 
     void spendEnergy(float dt) {
-
-        if (getState() != Rest) {
-            energy -= dt;
-            if (energy <= 1) {
-                setState(Rest);
+        if( getState() != Plant ) {
+            if ((getState() != Rest)) {
+                energy -= dt;
+                if (energy <= 1) {
+                    setState(Rest);
+                }
             }
         }
     }
@@ -136,9 +137,8 @@ public class Unit {
         spendEnergy(dt);
         previousPos = pos();
         moveSpeed = 100 * dt;
-        plotCounter %= 25;
         targetRessource = owner.wood < owner.food ? Wood : Food;
-        if (EMath.isInRange(dLife.percent(),.2f,.4f) && !hasChild) {
+        if (dLife.percent()>.3f && rn.nextFloat()<.0025f ) {
             setState(Breed);
         }
         doAction();
@@ -148,7 +148,6 @@ public class Unit {
 
     void breed() {
         float dt = Gdx.graphics.getDeltaTime();
-        if (!hasChild) {
             if (target == null) {
                 Unit u = (Unit) EMath.getRand(owner.unitList);
                 if (u.getState() != Rest) {
@@ -165,7 +164,7 @@ public class Unit {
                     //setPos(pos().lerp(target.pos(), .01f));
                 }
             }
-        }
+
         if (dAction.isDone()) {
 
         }
@@ -188,10 +187,12 @@ public class Unit {
     void plant() {
 
         if (hasNextFarmPlot())
-            destination.set(farmPlot.get(plotCounter));
-
-        makeResource(targetRessource);
-        if (dAction.isDone()) {
+            destination.set(farmPlot.get(0));
+        setPos(Body.getVector(-moveSpeed, pos(), destination).add(pos()));
+        if(destination.dst(pos())<3 && !farmPlot.isEmpty()) {
+            makeResource(targetRessource);
+        }
+        if (dAction.isDone() &&  farmPlot.isEmpty()) {
             plotFarm(targetRessource);
 
         }
@@ -284,12 +285,10 @@ public class Unit {
             u.setState(Gather, targetRessource);
             owner.newUnits.add(u);
         }
-        if(n>0){
             target.hasChild = true;
             hasChild = true;
             setState(Gather, targetRessource);
             target.setState(Gather, targetRessource);
-        }
 
 
     }
@@ -299,7 +298,7 @@ public class Unit {
     }
 
     void checkHunger(float dt) {
-        owner.sub(Food, .001);
+        owner.sub(Food, .002);
         if (owner.food <= 0) {
             dStarve.update(dt);
         } else dStarve.reset();
@@ -312,6 +311,7 @@ public class Unit {
     }
 
     void setState(State state) {
+        if(!(this.state == Plant && !farmPlot.isEmpty()))
         this.state = state;
     }
 
@@ -328,13 +328,13 @@ public class Unit {
     }
 
     void makeResource(Resource.Type type) {
-        Resource r = new Resource(type, farmPlot.get(plotCounter).x, farmPlot.get(plotCounter).y);
+        Resource r = new Resource(type, farmPlot.get(0));
         grid.resources.add(r);
         owner.addResource(Wood, -1);
         owner.addResource(Food, -1);
         // c = Color.WHITE;
-        plotCounter++;
         objective--;
+        farmPlot.remove(0);
         if (objective <= 0) {
             objective = 25;
             setState(State.Gather, Resource.getCalcResource(owner));
